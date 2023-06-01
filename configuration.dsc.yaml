@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
+# Reference: https://github.com/microsoft/winget-cli-restsource#building-the-client
 properties:
   resources:
     - resource: Microsoft.Windows.Developer/DeveloperMode
@@ -8,6 +9,13 @@ properties:
       settings:
         Ensure: Present
     - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install PowerShell 7
+        allowPrerelease: true
+      settings:
+        id: Microsoft.PowerShell
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: vsPackage
       directives:
         description: Install Visual Studio 2022 (any edition is OK)
@@ -15,6 +23,16 @@ properties:
       settings:
         id: Microsoft.VisualStudio.2022.Community
         source: winget
+    - resource: Microsoft.VisualStudio.DSC/VSComponents
+      dependsOn:
+        - vsPackage
+      directives:
+        description: Install required VS workloads from project .vsconfig file
+        allowPrerelease: true
+      settings:
+        productId: Microsoft.VisualStudio.Product.Community
+        channelId: VisualStudio.17.Release
+        vsConfigFile: '.\.vsconfig'
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
         description: Install Yarn
@@ -29,22 +47,4 @@ properties:
       settings:
         id: OpenJS.NodeJS
         source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: vsPackage
-      directives:
-        description: Install Visual Studio 2022 Community
-        allowPrerelease: true
-      settings:
-        id: Microsoft.VisualStudio.2022.Community
-        source: winget
-    - resource: Microsoft.VisualStudio.DSC/VSComponents
-      dependsOn:
-        - vsPackage
-      directives:
-        description: Install required VS workloads
-        allowPrerelease: true
-      settings:
-        productId: Microsoft.VisualStudio.Product.Community
-        channelId: VisualStudio.17.Release
-        vsConfigFile: '.\.vsconfig'
   configurationVersion: 0.2.0
